@@ -63,6 +63,14 @@ async function run() {
             res.send(updatedOrder);
         });
 
+        // delete cart product by id
+        app.delete('/cart/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        });
+
     } finally {
         //   await client.close();
     }
