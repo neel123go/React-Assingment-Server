@@ -26,6 +26,14 @@ async function run() {
             res.send(items);
         });
 
+        // get cart items
+        app.get('/cartItems', async (req, res) => {
+            const query = {};
+            const cursor = cartCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
         // get single item by id
         app.get('/items/:id', async (req, res) => {
             const id = req.params.id;
@@ -39,6 +47,20 @@ async function run() {
             const cart = req.body;
             const result = await cartCollection.insertMany([cart]);
             res.send(result);
+        });
+
+        // update cart product quantity
+        app.patch('/cart/:id', async (req, res) => {
+            const id = req.params.id;
+            const { quantity } = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    quantity: `${quantity}`
+                }
+            }
+            const updatedOrder = await cartCollection.updateOne(filter, updatedDoc);
+            res.send(updatedOrder);
         });
 
     } finally {
