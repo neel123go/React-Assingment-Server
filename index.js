@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -16,6 +16,7 @@ async function run() {
     try {
         await client.connect();
         const productsCollection = client.db("Flipcart").collection("products");
+        const cartCollection = client.db("Flipcart").collection("cart");
 
         // get all items
         app.get('/items', async (req, res) => {
@@ -24,6 +25,22 @@ async function run() {
             const items = await cursor.toArray();
             res.send(items);
         });
+
+        // get single item by id
+        app.get('/items/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollection.findOne(query);
+            res.send(result);
+        });
+
+        // insert user cart product
+        app.post('/cart', async (req, res) => {
+            const cart = req.body;
+            const result = await cartCollection.insertMany([cart]);
+            res.send(result);
+        });
+
     } finally {
         //   await client.close();
     }
